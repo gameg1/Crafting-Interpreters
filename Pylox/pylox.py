@@ -3,12 +3,15 @@ import sys
 
 
 class Lox:
+    hadError:bool = False
     def __init__(self) -> None:
         pass
 
     def run_file(self, path:str) -> None:
         file = open(path)
         self.run(file.read())
+        if (self.hadError):
+            exit(65)
 
     def runPrompt(self) -> None:
         while True:
@@ -16,12 +19,21 @@ class Lox:
             if line == None or line == "exit()":
                 break
             self.run(line)
+            self.hadError = False
 
     def run(self, source:str) -> None:
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         for t in tokens:
             print(t)
+    
+    def error(self, line:int, message:str) -> None:
+        self.report(line, "", message)
+
+    def report(self, line:int, where:str, message:str) -> None:
+        print("[line " + str(line) +"] Error" + where + ": " + message)
+        self.hadError = True
+
 
 if __name__ == '__main__':
     lox = Lox()
