@@ -1,26 +1,37 @@
-import argparse
+import sys
 
-parser = argparse.ArgumentParser(description="interprates the lox programming language")
 
-parser.add_argument('input', nargs='+')
-args = parser.parse_args()
 
-def main():
-    arg_inputs = args.input
+class Lox:
+    def __init__(self) -> None:
+        pass
+
+    def run_file(self, path:str) -> None:
+        file = open(path)
+        self.run(file.read())
+
+    def runPrompt(self) -> None:
+        while True:
+            line = input("pylox > ")
+            if line == None or line == "exit()":
+                break
+            self.run(line)
+
+    def run(self, source:str) -> None:
+        scanner = Scanner(source)
+        tokens = scanner.scan_tokens()
+        for t in tokens:
+            print(t)
+
+if __name__ == '__main__':
+    lox = Lox()
     # Prints usage if no input
-    if len(arg_inputs) < 1:
+    if len(sys.argv) < 2:
         print("Usage: pylox [script]")
         exit(64)
     # Runs the file if given a path
-    elif (len(arg_inputs) == 1):
-        runFile(arg_inputs[0])
+    elif (len(sys.argv) == 2):
+        lox.runFile(sys.argv[1])
     # runs the prompt
     else:
-        runPrompt()
-
-def runFile(path:str) -> None:
-    with open(path) as file:
-        run(file.read())
-
-if __name__ == '__main__':
-    main()
+        lox.runPrompt()
