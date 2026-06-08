@@ -1,5 +1,5 @@
 import sys
-
+from Scanner import Scanner
 
 
 class Lox:
