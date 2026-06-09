@@ -24,43 +24,90 @@ class Scanner:
     def _scanToken(self)-> None:
         c:chr = self._advance()
         # Checking for single character tokens
-        if c == "("   : self._addToken(TokenType.LEFT_PAREN)
-        elif c == ")" : self._addToken(TokenType.RIGHT_PAREN)
-        elif c == "{" : self._addToken(TokenType.LEFT_BRACE)
-        elif c == "}" : self._addToken(TokenType.RIGHT_BRACE)
-        elif c == "," : self._addToken(TokenType.COMMA)
-        elif c == "." : self._addToken(TokenType.DOT)
-        elif c == "-" : self._addToken(TokenType.MINUS)
-        elif c == "+" : self._addToken(TokenType.PLUS)
-        elif c == ";" : self._addToken(TokenType.SEMICOLON)
-        elif c == "*" : self._addToken(TokenType.STAR)
+        match c:
+        
+            case "("   : self._addToken(TokenType.LEFT_PAREN)
+            case ")" : self._addToken(TokenType.RIGHT_PAREN)
+            case "{" : self._addToken(TokenType.LEFT_BRACE)
+            case "}" : self._addToken(TokenType.RIGHT_BRACE)
+            case "," : self._addToken(TokenType.COMMA)
+            case "." : self._addToken(TokenType.DOT)
+            case "-" : self._addToken(TokenType.MINUS)
+            case "+" : self._addToken(TokenType.PLUS)
+            case ";" : self._addToken(TokenType.SEMICOLON)
+            case "*" : self._addToken(TokenType.STAR)
         # Checking for 
-        elif c == "!" : self._addToken(TokenType.BANG_EQUAL) if self._match('=') else self._addToken(TokenType.BANG)
-        elif c == "=" : self._addToken(TokenType.EQUAL_EQUAL) if self._match('=') else self._addToken(TokenType.EQUAL)
-        elif c == "<" : self._addToken(TokenType.LESS_EQUAL) if self._match('=') else self._addToken(TokenType.LESS)
-        elif c == ">" : self._addToken(TokenType.GREATER_EQUAL) if self._match('=') else self._addToken(TokenType.GREATER)
+            case "!" : self._addToken(TokenType.BANG_EQUAL) if self._match('=') else self._addToken(TokenType.BANG)
+            case "=" : self._addToken(TokenType.EQUAL_EQUAL) if self._match('=') else self._addToken(TokenType.EQUAL)
+            case "<" : self._addToken(TokenType.LESS_EQUAL) if self._match('=') else self._addToken(TokenType.LESS)
+            case ">" : self._addToken(TokenType.GREATER_EQUAL) if self._match('=') else self._addToken(TokenType.GREATER)
 
-        elif c == "/":
-            if (self._match('/')):
-                # A comment goes until the end of the line.
-                while(self._peek() != '\n' and not self._isAtEnd()):
-                    self._advance()
+            case "/":
+                if (self._match('/')):
+                    # A comment goes until the end of the line.
+                    while(self._peek() != '\n' and not self._isAtEnd()):
+                        self._advance()
+                    else:
+                        self._addToken(TokenType.SLASH)
+            # Ignore Whitespace
+            case ' ':  pass
+            case '\r': pass
+            case '\t': pass
+            # newline
+            case '\n': line += 1
+            case '"': self._string()
+
+            case _:
+                if self._isDigit(c):
+                    self._number()
                 else:
-                    self._addToken(TokenType.SLASH)
+                    Lox.error(Lox,self._line, "Unexpected character.")
+    
+    def _number(self):
+        while (self._isDigit(self._peek)): self._advance()
 
-        else:
-            Lox.error(Lox,self._line, "Unexpected character.")
-            
-    def _match(self,expected:chr)->bool:
+        # Look for a fractional part.
+        if (self._peek() == '.' and self._isDigit(self._peekNext())):
+            # Comsume the "."
+            self._advance()
+
+            while (self._isDigit(self._peek())): self._advance()
+        
+        self._addToken(TokenType.NUMBER, float(self.source[self._start,self._current]))
+
+    def _string(self) -> None:
+        while (self._peek() != '"' and not self._isAtEnd()):
+            if (self._peek() == '\n'):
+                self._line += 1
+            self._advance()
+        
+        if (self._isAtEnd()):
+            Lox.error(self._line, "Unterminated string.")
+            return
+        
+        self._advance()
+
+        value:str = self.source[self._start + 1, self._current - 1]
+        self._addToken(TokenType.STRING, value)
+
+
+    def _match(self, expected:chr)->bool:
         if(self._isAtEnd()): return False
         if (self.source[self._current] != expected): return False
 
+        self._current +=1
+        return True
+    
     def _peek(self) ->chr:
         if (self._isAtEnd()): return '\0'
         return self.source[self._current]
 
-        self._current +=1
-        return True
+    def _peekNext(self) ->chr:
+        if (self._current + 1 >= len(self.source)): return '\0'
+        return self.source[self._current + 1]
+
+    def _isDigit(self, c:chr):
+        return c >= '0' and c <= '9'
 
     def _isAtEnd(self):
         return self._current >= len(self.source)
