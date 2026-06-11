@@ -1,17 +1,20 @@
 import sys
 from Scanner import Scanner
+from runtime_error import RuntimeError_
+from error_handler import ErrorHandler
 
 
 class Lox:
-    hadError:bool = False
     def __init__(self) -> None:
-        pass
+        self.error_handler = ErrorHandler()
 
     def run_file(self, path:str) -> None:
         file = open(path)
         self.run(file.read())
-        if (self.hadError):
+        if (self.error_handler.had_error):
             exit(65)
+        if (self.error_handler.had_runtime_error):
+            exit(70)
 
     def runPrompt(self) -> None:
         while True:
@@ -19,11 +22,11 @@ class Lox:
             if line == None or line == "exit()":
                 break
             self.run(line)
-            self.hadError = False
+            self.error_handler.had_error = True
 
     def run(self, source:str) -> None:
-        scanner = Scanner(source)
-        tokens = scanner.scan_tokens()
+        scanner = Scanner(source, self.error_handler)
+        tokens = scanner.scanTokens()
         for t in tokens:
             print(t)
     
@@ -38,7 +41,7 @@ class Lox:
 if __name__ == '__main__':
     lox = Lox()
     # Prints usage if no input
-    if len(sys.argv) < 2:
+    if len(sys.argv) > 2:
         print("Usage: pylox [script]")
         exit(64)
     # Runs the file if given a path

@@ -7,7 +7,7 @@ class Token:
         self.line = line
     
     def toString(self):
-        return str(self.type + " " + self.lexeme + " " + self.literal)
+        return (f"<token> {self.type} | {self.lexeme} | {self.literal} | {self.line}")
     
     def __str__(self):
         return self.toString()
