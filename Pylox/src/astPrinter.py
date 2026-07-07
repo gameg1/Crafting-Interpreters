@@ -21,7 +21,7 @@ class AstPrinter(Visitor):
     def visit_unary_expr(self, expr) -> str:
         return self.parenthesize(expr.operator.lexeme, expr.right)
     
-    def parenthesize(self, name, exprs) -> str:
+    def parenthesize(self, name, *exprs) -> str:
         res = f"({name}"
         for expr in exprs:
             res += f" {expr.accept(self)}"
@@ -31,12 +31,10 @@ class AstPrinter(Visitor):
 
 if __name__ == "__main__":
     expression = Binary(
-        Unary(
-            Token(TokenType.MINUS,"-", None, 1),
-            Literal(123)),
+        Unary(Token(TokenType.MINUS, "-",None, 1), Literal(123)),
         Token(TokenType.STAR, "*", None, 1),
-        Grouping(
-            Literal(45.67)))
+        Grouping(Literal(45.67))
+        )
     
     printer = AstPrinter()
     print(printer.print(expression))
