@@ -2,6 +2,8 @@ import sys
 from Scanner import Scanner
 from runtime_error import RuntimeError_
 from error_handler import ErrorHandler
+from Parser import *
+from astPrinter import AstPrinter
 
 
 class Lox:
@@ -27,8 +29,13 @@ class Lox:
     def run(self, source:str) -> None:
         scanner = Scanner(source, self.error_handler)
         tokens = scanner.scanTokens()
-        for t in tokens:
-            print(t)
+        parser: Parser = Parser(tokens=tokens)
+        expression: Expr = parser.parse()
+
+        if (self.error_handler.had_error): return
+
+        print(AstPrinter.print(expression))
+        
     
     def error(self, line:int, message:str) -> None:
         self.report(line, "", message)
