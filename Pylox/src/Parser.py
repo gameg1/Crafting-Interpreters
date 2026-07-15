@@ -76,12 +76,13 @@ class Parser:
         if (self._match([TokenType.NUMBER,TokenType.STRING])):
             return Literal(self.previous().literal)
         
-        if (self._match(TokenType.LEFT_PAREN)):
+        if (self._match([TokenType.LEFT_PAREN])):
             expr:Expr = self.expression()
-            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
+            self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
         
-        raise self.error(self.peek(), "Expect expression.")
+        #raise self.error(self.peek(), "Expect expression.")
+        ErrorHandler.error(self.peek(),"Expect expression.")
 
 
     def _match(self, types:list[TokenType]):

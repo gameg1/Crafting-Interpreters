@@ -9,6 +9,7 @@ from astPrinter import AstPrinter
 class Lox:
     def __init__(self) -> None:
         self.error_handler = ErrorHandler()
+        self.ast_printer = AstPrinter()
 
     def run_file(self, path:str) -> None:
         file = open(path)
@@ -24,7 +25,7 @@ class Lox:
             if line == None or line == "exit()":
                 break
             self.run(line)
-            self.error_handler.had_error = True
+            self.error_handler.had_error = False
 
     def run(self, source:str) -> None:
         scanner = Scanner(source, self.error_handler)
@@ -34,7 +35,7 @@ class Lox:
 
         if (self.error_handler.had_error): return
 
-        print(AstPrinter.print(expression))
+        print(self.ast_printer.print(item=expression))
         
     
     def error(self, line:int, message:str) -> None:

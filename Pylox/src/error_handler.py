@@ -10,20 +10,22 @@ class ErrorHandler:
         self.had_error = False
         self.had_runtime_error = False
 
+    @classmethod
     def error(self, token = None, message = ""):
         if isinstance(token, Token):
-            if Token.type == TokenType.EOF:
+            if token.type == TokenType.EOF:
                 self.report(token.line, "", message)
             else:
-                self.report(token.line, " at '" + token.lexeme + "'", message)
+
+                self.report(line= token.line, where=" at '" + token.lexeme + "'", message=message)
         else:
             self.report(token, "", message)
-
+    @classmethod
     def runtime_error(self, error):
         print(f"[Line {error.token.line}] --> {error.message}")
         self.had_error = True
         self.had_runtime_error = True
-
+    @classmethod
     def report(self, line, where, message):
         print(f"Line {line} | Error {where}: {message}", file=sys.stderr)
         self.had_error = True

@@ -41,7 +41,8 @@ class Scanner:
         
         self.tokens.append(Token(TokenType.EOF, " ", None, self._line))
         return self.tokens
-    #TODO: Change this if statement to a case statement
+    
+
     def _scanToken(self)-> None:
         c:str = self._advance()
         # Checking for single character tokens
@@ -68,8 +69,8 @@ class Scanner:
                     # A comment goes until the end of the line.
                     while(self._peek() != '\n' and not self._isAtEnd()):
                         self._advance()
-                    else:
-                        self._addToken(TokenType.SLASH)
+                else:
+                    self._addToken(TokenType.SLASH)
             # Ignore Whitespace
             case ' ':  pass
             case '\r': pass
@@ -98,7 +99,7 @@ class Scanner:
         self._addToken(type)
 
     def _number(self):
-        while (self._isDigit(self._peek)): self._advance()
+        while (self._isDigit(self._peek())): self._advance()
 
         # Look for a fractional part.
         if (self._peek() == '.' and self._isDigit(self._peekNext())):
@@ -106,7 +107,6 @@ class Scanner:
             self._advance()
 
             while (self._isDigit(self._peek())): self._advance()
-        
         self._addToken(TokenType.NUMBER, float(self.source[self._start: self._current]))
 
     def _string(self) -> None:
