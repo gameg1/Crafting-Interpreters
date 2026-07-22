@@ -2,8 +2,12 @@ import sys
 
 from Token import Token
 from TokenType import TokenType
-from runtime_error import RuntimeError_
 
+
+class RuntimeErr(RuntimeError):
+    def __init__(self, *args, token: Token) -> None:
+        super().__init__(*args)
+        self.token = token
 
 class ErrorHandler:
     def __init__(self):

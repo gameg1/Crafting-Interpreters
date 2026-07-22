@@ -3,11 +3,13 @@ from Scanner import Scanner
 from runtime_error import RuntimeError_
 from error_handler import ErrorHandler
 from Parser import *
+from interpreter import Interpreter
 from astPrinter import AstPrinter
 
 
 class Lox:
-    def __init__(self) -> None:
+    def __init__(self, interpreter: Interpreter) -> None:
+        self.interpreter:Interpreter = interpreter
         self.error_handler = ErrorHandler()
         self.ast_printer = AstPrinter()
 
@@ -33,17 +35,22 @@ class Lox:
         parser: Parser = Parser(tokens=tokens)
         expression: Expr = parser.parse()
 
-        if (self.error_handler.had_error): return
+        if (self.error_handler.had_error): sys.exit(65)
+        if (self.error_handler.had_runtime_error): sys.exit(70)
 
-        print(self.ast_printer.print(item=expression))
+        self.interpreter.interpret(expression=expression)
         
     
     def error(self, line:int, message:str) -> None:
         self.report(line, "", message)
 
+    def runtimeError(self, error:RuntimeErr):
+        print(error.args[0] + "\n[line " + error.token.line + "]") # Check to see if this works
+        self.error_handler.had_runtime_error = True
+    
     def report(self, line:int, where:str, message:str) -> None:
         print("[line " + str(line) +"] Error" + where + ": " + message)
-        self.hadError = True
+        self.error_handler.had_error = True
 
 
 if __name__ == '__main__':
