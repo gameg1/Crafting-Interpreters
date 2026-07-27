@@ -18,6 +18,11 @@ def main():
         "Unary    | operator: Token, right:Expr",
     ])
 
+    _defineAst(outputDir, "Stmt", [
+        "Expression | expression: Expr",
+        "print      | expression: Expr"
+    ])
+
 def _defineAst(outputDir:str, baseName:str, types:list[str])-> None:
     path:str = outputDir + "/" + baseName + ".py"
     output_writer = open(path,"w", encoding="UTF-8")
