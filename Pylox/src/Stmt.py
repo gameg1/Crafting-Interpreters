@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from Token import Token
 from typing import Generic, TypeVar
+
+from Expr import Expr
+from Token import Token
 
 V = TypeVar("V")
 
@@ -11,6 +13,9 @@ class Visitor(ABC, Generic[V]):
     @abstractmethod
     def visit_print_stmt(self, stmt: "print") -> V: ...
 
+class Stmt(ABC):
+    @abstractmethod
+    def accept(self, visitor:Visitor[V])-> V:...
 
 class Expression(Stmt):
     def __init__(self, expression: Expr):
