@@ -33,12 +33,13 @@ class Lox:
         scanner = Scanner(source, self.error_handler)
         tokens = scanner.scanTokens()
         parser: Parser = Parser(tokens=tokens)
-        expression: Expr = parser.parse()
+        statements:list[Stmt.Stmt] = parser.parse()
 
         if (self.error_handler.had_error): sys.exit(65)
         if (self.error_handler.had_runtime_error): sys.exit(70)
 
-        self.interpreter.interpret(expression=expression)
+        # self.interpreter.interpret(expression)
+        self.interpreter.interpret(statements)
         
     
     def error(self, line:int, message:str) -> None:
@@ -54,14 +55,15 @@ class Lox:
 
 
 if __name__ == '__main__':
-    lox = Lox()
+    interpreter = Interpreter()
+    lox = Lox(interpreter=interpreter)
     # Prints usage if no input
     if len(sys.argv) > 2:
         print("Usage: pylox [script]")
         exit(64)
     # Runs the file if given a path
     elif (len(sys.argv) == 2):
-        lox.runFile(sys.argv[1])
+        lox.run_file(sys.argv[1])
     # runs the prompt
     else:
         lox.runPrompt()

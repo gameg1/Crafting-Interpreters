@@ -1,7 +1,7 @@
 from TokenType import TokenType
 from Token import *
-from Expr import *
-from Stmt import *
+import Expr
+import Stmt
 from error_handler import *
 
 class ParserError(Exception):
@@ -12,8 +12,8 @@ class Parser:
         self.tokens = tokens
         self._current = 0
     
-    def parse(self) -> list[Stmt]:
-        statements:list[Stmt] = list
+    def parse(self) -> list[Stmt.Stmt]:
+        statements:list[Stmt.Stmt] = []
         while (not self._isAtEnd()):
             statements.append(self._statement())
         return statements
@@ -41,7 +41,7 @@ class Parser:
         while (self._match([TokenType.BANG_EQUAL,TokenType.EQUAL_EQUAL])):
             operator:Token = self.previous()
             right:Expr = self.comparison()
-            expr = Binary(expr, operator=operator,right=right)
+            expr = Expr.Binary(expr, operator=operator,right=right)
         
         return expr
     
@@ -51,7 +51,7 @@ class Parser:
         while (self._match([TokenType.GREATER,TokenType.GREATER_EQUAL,TokenType.LESS,TokenType.LESS_EQUAL])):
             operator:Token = self.previous()
             right:Expr = self.term()
-            expr = Binary(expr, operator=operator, right=right)
+            expr = Expr.Binary(expr, operator=operator, right=right)
         
         return expr
     
@@ -61,7 +61,7 @@ class Parser:
         while (self._match([TokenType.MINUS,TokenType.PLUS])):
             opertator:Token = self.previous()
             right:Expr = self.factor()
-            expr = Binary(expr, operator=opertator, right=right)
+            expr = Expr.Binary(expr, operator=opertator, right=right)
         
         return expr
     
@@ -71,7 +71,7 @@ class Parser:
         while (self._match([TokenType.SLASH,TokenType.STAR])):
             operator:Token = self.previous()
             right: Expr = self.unary()
-            expr = Binary(expr, operator=operator, right=right)
+            expr = Expr.Binary(expr, operator=operator, right=right)
         
         return expr
     
@@ -79,22 +79,22 @@ class Parser:
         if(self._match([TokenType.BANG,TokenType.MINUS])):
             operator:Token = self.previous()
             right: Expr = self.unary()
-            return Unary(operator=operator, right=right)
+            return Expr.Unary(operator=operator, right=right)
         
         return self.primary()
     
     def primary(self) -> Expr:
-        if (self._match([TokenType.FALSE])): return Literal(False)
-        if (self._match([TokenType.TRUE])): return Literal(True)
-        if (self._match([TokenType.NIL])): return Literal(None)
+        if (self._match([TokenType.FALSE])): return Expr.Literal(False)
+        if (self._match([TokenType.TRUE])): return Expr.Literal(True)
+        if (self._match([TokenType.NIL])): return Expr.Literal(None)
 
         if (self._match([TokenType.NUMBER,TokenType.STRING])):
-            return Literal(self.previous().literal)
+            return Expr.Literal(self.previous().literal)
         
         if (self._match([TokenType.LEFT_PAREN])):
             expr:Expr = self.expression()
             self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
-            return Grouping(expr)
+            return Expr.Grouping(expr)
         
         #raise self.error(self.peek(), "Expect expression.")
         ErrorHandler.error(self.peek(),"Expect expression.")
@@ -131,7 +131,7 @@ class Parser:
         return self.tokens[self._current - 1]
     
     def error(self, token:Token, message:str):
-        ErrorHandler.error(ErrorHandler,token, message)
+        ErrorHandler.error(token, message)
         return ParserError()
     
     def synchronize(self)-> None:

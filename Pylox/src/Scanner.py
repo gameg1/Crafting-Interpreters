@@ -13,7 +13,7 @@ class Scanner:
 
         self._start:int = 0
         self._current:int = 0
-        self._line:int = 1
+        self._line:int = 0
 
         self.keywords = {
             "and":    TokenType.AND,
@@ -76,7 +76,7 @@ class Scanner:
             case '\r': pass
             case '\t': pass
             # newline
-            case '\n': line += 1
+            case '\n': self._line += 1
             case '"': self._string()
 
             case _:

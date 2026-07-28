@@ -1,4 +1,3 @@
-fsafasd fasdfsdaf fasdfsdaf
-fafde
-eeee
-we can be beees
+print "one";
+print true ;
+print 2 + 1;

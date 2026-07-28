@@ -1,12 +1,13 @@
 import Expr
+import Stmt
 from error_handler import ErrorHandler, RuntimeErr
 from TokenType import TokenType
 from Token import Token
 
-class Interpreter(Expr.Visitor):
+class Interpreter(Expr.Visitor, Stmt.Visitor):
 
     def visit_literal_expr(self, expr: Expr.Literal) -> object:
-        return Expr.value
+        return expr.value
     
     def visit_unary_expr(self, expr: Expr.Unary) -> object:
         right:object = self._evaluate(expr.right)
@@ -28,7 +29,19 @@ class Interpreter(Expr.Visitor):
         return self._evaluate(expr.expression)
     
     def _evaluate(self, expr: Expr) -> object:
-        return Expr.accept(self)
+        return expr.accept(self)
+
+    def _execute(self, stmt:Stmt.Stmt) -> None:
+        stmt.accept(self)
+
+    def visit_expression_stmt(self, stmt: Stmt.Expression) -> None:
+        self._evaluate(stmt.expression)
+        return None
+
+    def visit_print_stmt(self, stmt: Stmt.Print):
+        value: object = self._evaluate(stmt.expression)
+        print(self._stringify(value))
+        return None
     
     def visit_binary_expr(self, expr) -> object:
         left: object = self._evaluate(expr.left)
@@ -72,10 +85,10 @@ class Interpreter(Expr.Visitor):
     def _isTruthy(self, Object:object) -> bool:
         return Object is not None and Object is not False
             
-    def interpret(self,expression:Expr) ->None:
+    def interpret(self, statements:list[Stmt.Stmt]) ->None:
         try:
-            value:object = self.evaluate(expression)
-            print(self._stringify(value))
+            for statement in statements:
+                self._execute(statement)
         except RuntimeErr as error:
             ErrorHandler.runtime_error(error)
 
