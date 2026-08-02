@@ -12,17 +12,18 @@ def main():
     outputDir:str = sys.argv[1]
 
     _defineAst(outputDir, "Expr", [
+        "Assign   | name: Token, value: Expr",
         "Binary   | left: Expr, operator: Token, right: Expr",
         "Grouping | expression: Expr",
         "Literal  | value",
-        "Unary    | operator: Token, right:Expr",
-        "Variable | name Token"
+        "Unary    | operator: Token, right: Expr",
+        "Variable | name: Token"
     ])
 
     _defineAst(outputDir, "Stmt", [
         "Expression | expression: Expr",
         "print      | expression: Expr",
-        "Var        | name: Token, initializer Expr"
+        "Var        | name: Token, initializer: Expr"
     ])
 
 def _defineAst(outputDir:str, baseName:str, types:list[str])-> None:

@@ -1,27 +1,20 @@
-from abc import ABC, abstractmethod
-from Token import Token
-from typing import Generic, TypeVar
-
 V = TypeVar("V")
 
 
 class Visitor(ABC, Generic[V]):
     @abstractmethod
-    def visit_assign_expr(self, expr: " Assign") -> V: ...
+    def visit_assign   | name_expr(self, expr: " Assign   | name") -> V: ...
     @abstractmethod
-    def visit_binary_expr(self, expr: " Binary") -> V: ...
+    def visit_binary   | left_expr(self, expr: " Binary   | left") -> V: ...
     @abstractmethod
-    def visit_grouping_expr(self, expr: " Grouping") -> V: ...
+    def visit_grouping | expression_expr(self, expr: " Grouping | expression") -> V: ...
     @abstractmethod
-    def visit_literal_expr(self, expr: " Literal") -> V: ...
+    def visit_literal  | value_expr(self, expr: " Literal  | value") -> V: ...
     @abstractmethod
-    def visit_unary_expr(self, expr: " Unary") -> V: ...
+    def visit_unary    | operator_expr(self, expr: " Unary    | operator") -> V: ...
     @abstractmethod
-    def visit_variable_expr(self, expr: " Variable") -> V: ...
+    def visit_variable | name_expr(self, expr: " Variable | name") -> V: ...
 
-class Expr(ABC):
-    @abstractmethod
-    def accept(self, visitor: Visitor[V]) -> V: ...
 
 class Assign(Expr):
     def __init__(self, name: Token, value: Expr):
@@ -30,6 +23,7 @@ class Assign(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_assign_expr(self)
+
 
 class Binary(Expr):
     def __init__(self, left: Expr, operator: Token, right: Expr):
@@ -43,7 +37,7 @@ class Binary(Expr):
 
 class Grouping(Expr):
     def __init__(self, expression: Expr):
-        self.expression:Expr = expression
+        self.expression: Expr = expression
 
     def accept(self, visitor: Visitor):
         return visitor.visit_grouping_expr(self)
@@ -58,16 +52,17 @@ class Literal(Expr):
 
 
 class Unary(Expr):
-    def __init__(self, operator:Token, right:Expr):
+    def __init__(self, operator: Token, right: Expr):
         self.operator: Token = operator
-        self.right :Expr = right
+        self.right: Expr = right
 
     def accept(self, visitor: Visitor):
         return visitor.visit_unary_expr(self)
 
+
 class Variable(Expr):
-    def __init__(self, name:Token):
-        self.name:Token = name
+    def __init__(self, name: Token):
+        self.name: Token = name
 
     def accept(self, visitor: Visitor):
         return visitor.visit_variable_expr(self)
