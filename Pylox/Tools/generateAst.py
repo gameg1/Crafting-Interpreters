@@ -16,11 +16,13 @@ def main():
         "Grouping | expression: Expr",
         "Literal  | value",
         "Unary    | operator: Token, right:Expr",
+        "Variable | name Token"
     ])
 
     _defineAst(outputDir, "Stmt", [
         "Expression | expression: Expr",
-        "print      | expression: Expr"
+        "print      | expression: Expr",
+        "Var        | name: Token, initializer Expr"
     ])
 
 def _defineAst(outputDir:str, baseName:str, types:list[str])-> None:

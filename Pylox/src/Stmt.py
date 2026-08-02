@@ -31,3 +31,11 @@ class Print(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_print_stmt(self)
+
+class Var(Stmt):
+    def __init__(self, name: Token, initializer:Expr):
+        self.name: Token = name
+        self.initializer:Expr = initializer
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_var_stmt(self)

@@ -1,10 +1,15 @@
 import Expr
 import Stmt
+from Environment import Environment
 from error_handler import ErrorHandler, RuntimeErr
 from TokenType import TokenType
 from Token import Token
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
+
+    def __init__(self):
+        super().__init__()
+        self.environment:Environment = Environment()
 
     def visit_literal_expr(self, expr: Expr.Literal) -> object:
         return expr.value
@@ -20,6 +25,9 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
                 return not self.isTruthy(right)
         
         return None
+
+    def visit_variable_expr(self, expr:Expr.Variable) -> object:
+        return self.environment.get(expr.name)
 
     def _checkNumberOperand(operator:Token, operand: object)-> None:
         if (isinstance(operand, float)) :return
@@ -41,6 +49,14 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     def visit_print_stmt(self, stmt: Stmt.Print):
         value: object = self._evaluate(stmt.expression)
         print(self._stringify(value))
+        return None
+
+    def visit_var_stmt(self, stmt:Stmt.Var) -> None:
+        value:object = None
+        if (stmt.initializer !=None):
+            value = self._evaluate(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
         return None
     
     def visit_binary_expr(self, expr) -> object:
