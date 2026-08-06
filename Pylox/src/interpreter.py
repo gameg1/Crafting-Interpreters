@@ -42,6 +42,15 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
     def _execute(self, stmt:Stmt.Stmt) -> None:
         stmt.accept(self)
 
+    def executeBlock(self, statements:list[Stmt.Stmt], environment:Environment) -> None:
+        previous:Environment = self.environment
+        try:
+            self.environment = environment
+            for statement in statements:
+                self._execute(statement)
+        finally:
+            self.environment = previous
+
     def visit_expression_stmt(self, stmt: Stmt.Expression) -> None:
         self._evaluate(stmt.expression)
         return None
