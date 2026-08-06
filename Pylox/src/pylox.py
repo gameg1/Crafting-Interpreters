@@ -11,7 +11,7 @@ class Lox:
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter:Interpreter = interpreter
         self.error_handler = ErrorHandler()
-        self.ast_printer = AstPrinter()
+        #self.ast_printer = AstPrinter()
 
     def run_file(self, path:str) -> None:
         file = open(path)

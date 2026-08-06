@@ -51,6 +51,10 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         finally:
             self.environment = previous
 
+    def visit_block_stmt(self, stmt:Stmt.Block) -> None:
+        self.executeBlock(stmt.statements, Environment(self.environment))
+        return None
+
     def visit_expression_stmt(self, stmt: Stmt.Expression) -> None:
         self._evaluate(stmt.expression)
         return None
