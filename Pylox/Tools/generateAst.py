@@ -21,6 +21,7 @@ def main():
     ])
 
     _defineAst(outputDir, "Stmt", [
+        "Block      | stattements: list[Stmt]",
         "Expression | expression: Expr",
         "print      | expression: Expr",
         "Var        | name: Token, initializer: Expr"
