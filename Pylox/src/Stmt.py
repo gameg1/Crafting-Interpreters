@@ -13,7 +13,13 @@ class Visitor(ABC, Generic[V]):
     @abstractmethod
     def visit_expression_stmt(self, stmt: "Expression") -> V: ...
     @abstractmethod
+    def visit_if_stmt(self, stmt: "If") -> V: ...
+    @abstractmethod
     def visit_print_stmt(self, stmt: "print") -> V: ...
+    @abstractmethod
+    def visit_var_stmt(self, stmt: " Var") -> V: ...
+
+
 
 class Stmt(ABC):
     @abstractmethod
@@ -25,6 +31,17 @@ class Expression(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_expression_stmt(self)
+
+class If(Stmt):
+    def __init__(
+        self, condition: Expr, thenBranch: Stmt, elseBranch: Stmt | None
+    ):
+        self.condition: Expr = condition
+        self.thenBranch: Stmt = thenBranch
+        self.elseBranch: Stmt | None = elseBranch
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_if_stmt(self)
 
 class Block(Stmt):
     def __init__(self, statements: list[Stmt]):

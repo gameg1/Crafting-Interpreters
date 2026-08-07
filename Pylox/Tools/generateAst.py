@@ -23,6 +23,7 @@ def main():
     _defineAst(outputDir, "Stmt", [
         "Block      | stattements: list[Stmt]",
         "Expression | expression: Expr",
+        "If         | condition: Expr, thenBranch: Stmt," +"elseBranch: Stmt | None",
         "print      | expression: Expr",
         "Var        | name: Token, initializer: Expr"
     ])
