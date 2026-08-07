@@ -30,15 +30,18 @@ class Lox:
             self.error_handler.had_error = False
 
     def run(self, source:str) -> None:
+        # Gives a Scanner a source and an error handler
         scanner = Scanner(source, self.error_handler)
+        # Scans the source char by char and returns a list of tokens
         tokens = scanner.scanTokens()
+        # Takes the tokens and returns a tree data structure that contian various stmts and exprs
         parser: Parser = Parser(tokens=tokens)
         statements:list[Stmt.Stmt] = parser.parse()
 
         if (self.error_handler.had_error): sys.exit(65)
         if (self.error_handler.had_runtime_error): sys.exit(70)
 
-        # self.interpreter.interpret(expression)
+        # Interpreates the statements
         self.interpreter.interpret(statements)
         
     
@@ -61,9 +64,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         print("Usage: pylox [script]")
         exit(64)
-    # Runs the file if given a path
+    # Runs the file when given a path
     elif (len(sys.argv) == 2):
         lox.run_file(sys.argv[1])
-    # runs the prompt
+    # Allows the user to run prompts in the cmd line.
     else:
         lox.runPrompt()

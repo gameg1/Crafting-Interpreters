@@ -5,16 +5,17 @@ from error_handler import ErrorHandler
 class Scanner:
 
 
-    def __init__(self, source:str, error_handler):
+    def __init__(self, source:str, error_handler:ErrorHandler):
         self.error_handler = error_handler
 
         self.source:str = source
         self.tokens: list[Token] = list()
-
+        # The location of the pointer in the source
         self._start:int = 0
         self._current:int = 0
         self._line:int = 0
 
+        # Keywords to look for in the source
         self.keywords = {
             "and":    TokenType.AND,
             "class":  TokenType.CLASS,
@@ -33,22 +34,21 @@ class Scanner:
             "var":    TokenType.VAR,
             "While":  TokenType.WHILE,
         }
-
+    # Scans thought the source until it reaches the end
     def scanTokens(self) -> list[Token]:
         while (not self._isAtEnd()):
                self._start = self._current
                self._scanToken()
-        
+        # Adds a final EOF token
         self.tokens.append(Token(TokenType.EOF, " ", None, self._line))
         return self.tokens
     
-
+    # looks for what the next token is
     def _scanToken(self)-> None:
         c:str = self._advance()
-        # Checking for single character tokens
         match c:
-        
-            case "("   : self._addToken(TokenType.LEFT_PAREN)
+            # Checking for single character tokens  
+            case "(" : self._addToken(TokenType.LEFT_PAREN)
             case ")" : self._addToken(TokenType.RIGHT_PAREN)
             case "{" : self._addToken(TokenType.LEFT_BRACE)
             case "}" : self._addToken(TokenType.RIGHT_BRACE)
@@ -58,12 +58,12 @@ class Scanner:
             case "+" : self._addToken(TokenType.PLUS)
             case ";" : self._addToken(TokenType.SEMICOLON)
             case "*" : self._addToken(TokenType.STAR)
-        # Checking for 
+            # Checking if token is a single or double charactor token
             case "!" : self._addToken(TokenType.BANG_EQUAL) if self._match('=') else self._addToken(TokenType.BANG)
             case "=" : self._addToken(TokenType.EQUAL_EQUAL) if self._match('=') else self._addToken(TokenType.EQUAL)
             case "<" : self._addToken(TokenType.LESS_EQUAL) if self._match('=') else self._addToken(TokenType.LESS)
             case ">" : self._addToken(TokenType.GREATER_EQUAL) if self._match('=') else self._addToken(TokenType.GREATER)
-
+            # Checking if it is a comment or a slash token
             case "/":
                 if (self._match('/')):
                     # A comment goes until the end of the line.
@@ -77,6 +77,7 @@ class Scanner:
             case '\t': pass
             # newline
             case '\n': self._line += 1
+            # Deals with strings
             case '"': self._string()
 
             case _:
