@@ -41,8 +41,14 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         return self.environment.get(expr.name)
 
     def _checkNumberOperand(operator:Token, operand: object)-> None:
-        if (isinstance(operand, float)) :return
-        raise RuntimeError(operator, "Operand must be a number.")
+        if (isinstance(operand, float)):
+            return
+        raise RuntimeErr(operator, "Operand must be a number.")
+
+    def _checkNumberOperands(self, operator:Token, left: object, right:object) -> None:
+        if isinstance(left, float) and isinstance(right, float):
+            return
+        raise RuntimeErr(operator, "Operand must be a number.")
 
     def visit_grouping_expr(self, expr: Expr.Grouping) -> object:
         return self._evaluate(expr.expression)
@@ -106,19 +112,19 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
 
         match (expr.operator.type):
             case TokenType.GREATER:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) > float(right)
             case TokenType.GREATER_EQUAL:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) >= float(right)
             case TokenType.LESS:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) < float(right)
             case TokenType.LESS_EQUAL:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) <= float(right)
             case TokenType.MINUS:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) - float(right)
             case TokenType.PLUS:
                 if (isinstance(left, float) and isinstance(right, float)):
@@ -127,10 +133,10 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
                     return str(left) + str(right)
                 raise RuntimeError(expr.operator, "Operands must be two number or two strings.")
             case TokenType.SLASH:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) / float(right)
             case TokenType.STAR:
-                self._checkNumberOperand(expr.operator, left, right)
+                self._checkNumberOperands(expr.operator, left, right)
                 return float(left) * float(right)
             case TokenType.BANG_EQUAL:
                 return left != right

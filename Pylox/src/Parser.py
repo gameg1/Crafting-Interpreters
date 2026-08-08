@@ -30,12 +30,53 @@ class Parser:
             return None
         
     def _statement(self) -> Stmt:
-        if self._match([TokenType.If]): return self._ifStatement()
+        if self._match([TokenType.FOR]): return self._forStatement()
+        if self._match([TokenType.IF]): return self._ifStatement()
         if self._match([TokenType.PRINT]): return self._printStatement()
         if self._match([TokenType.WHILE]): return self._whileStatement()
         if self._match([TokenType.LEFT_BRACE]): return Stmt.Block(self._block())
 
         return self._expressionStatement()
+
+    def _forStatement(self):
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+
+        initializer:Stmt
+        if (self._match([TokenType.SEMICOLON])):
+            initializer = None
+        elif (self._match([TokenType.VAR])):
+            initializer = self._varDeclaration()
+        else:
+            initializer = self._expressionStatement()
+
+        condition:Expr = None
+        if (not self._check(TokenType.SEMICOLON)):
+            condition = self.expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment: Expr = None
+        if (not self._check(TokenType.RIGHT_PAREN)):
+            increment = self.expression()
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body:Stmt = self._statement()
+
+        if (increment != None):
+            body = Stmt.Block(
+                [body,
+                Stmt.Expression(increment)]
+            )
+
+        if (condition == None): condition = Expr.Literal(True)
+        body = Stmt.While(condition, body)
+
+        if (initializer != None):
+            body = Stmt.Block([
+                initializer,
+                body
+            ])
+
+        return body
 
     def _ifStatement(self):
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
@@ -90,9 +131,8 @@ class Parser:
             equals: Token = self.previous()
             value: Expr = self._assignment()
 
-            if isinstance(expr,Expr.Variable):
-                name:Token = expr.Assign(expr.name, value)
-                return Expr.Assign(name, value)
+            if isinstance(expr, Expr.Variable):
+                return Expr.Assign(expr.name, value)
             self.error(equals, "Invalid assignment target.")
 
         return expr
