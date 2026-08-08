@@ -13,6 +13,17 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
 
     def visit_literal_expr(self, expr: Expr.Literal) -> object:
         return expr.value
+
+    def visit_logical_expr(self, expr:Expr.Logical):
+        left:object = self._evaluate(expr.left)
+
+        if (expr.operator.type == TokenType.OR):
+            if (self._isTruthy(left)): return left
+        else:
+            if (not self._isTruthy(left)): return left
+
+        return self._evaluate(expr.right)
+
     
     def visit_unary_expr(self, expr: Expr.Unary) -> object:
         right:object = self._evaluate(expr.right)
@@ -77,6 +88,11 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
             value = self._evaluate(stmt.initializer)
 
         self.environment.define(stmt.name.lexeme, value)
+        return None
+
+    def visit_while_stmt(self, stmt:Stmt.While):
+        while (self._isTruthy(self._evaluate(stmt.condition))):
+            self._execute(stmt.body)
         return None
 
     def visit_assign_expr(self, expr:Expr.Assign):

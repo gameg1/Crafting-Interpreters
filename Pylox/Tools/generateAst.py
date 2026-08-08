@@ -26,7 +26,8 @@ def main():
         "Expression | expression: Expr",
         "If         | condition: Expr, thenBranch: Stmt," +"elseBranch: Stmt | None",
         "print      | expression: Expr",
-        "Var        | name: Token, initializer: Expr"
+        "Var        | name: Token, initializer: Expr",
+        "While      | condition: Expr, body: Stmt"
     ])
 
 def _defineAst(outputDir:str, baseName:str, types:list[str])-> None:

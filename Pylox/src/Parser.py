@@ -32,6 +32,7 @@ class Parser:
     def _statement(self) -> Stmt:
         if self._match([TokenType.If]): return self._ifStatement()
         if self._match([TokenType.PRINT]): return self._printStatement()
+        if self._match([TokenType.WHILE]): return self._whileStatement()
         if self._match([TokenType.LEFT_BRACE]): return Stmt.Block(self._block())
 
         return self._expressionStatement()
@@ -61,6 +62,14 @@ class Parser:
         self._consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return Stmt.Var(name, initializer)
 
+    def _whileStatement(self):
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition: Expr = self.expression()
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body:Stmt = self._statement()
+
+        return Stmt.While(condition=condition, body=body)
+
     def _expressionStatement(self) -> Stmt:
         expr:Expr = self.expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after expression.")
@@ -75,7 +84,7 @@ class Parser:
         return statements
 
     def _assignment(self):
-        expr:Expr = self.equality()
+        expr:Expr = self._or()
 
         if (self._match([TokenType.EQUAL])):
             equals: Token = self.previous()
@@ -87,7 +96,24 @@ class Parser:
             self.error(equals, "Invalid assignment target.")
 
         return expr
-    
+
+    def _or(self):
+        expr: Expr = self._and()
+
+        while (self._match([TokenType.OR])):
+            operator:Token = self.previous()
+            right: Expr = self._and()
+            expr = Expr.Logical(expr, operator, right)
+        return expr
+
+    def _and(self):
+        expr: Expr = self.equality()
+        while self._match([TokenType.AND]):
+            operator:Token = self.previous()
+            right:Expr = self.equality()
+            expr = Expr.Logical(expr, operator, right)
+        return expr
+
     def equality(self)-> Expr:
         expr:Expr = self.comparison()
         while (self._match([TokenType.BANG_EQUAL,TokenType.EQUAL_EQUAL])):
