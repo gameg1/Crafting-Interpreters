@@ -7,7 +7,7 @@ class Visitor(ABC, Generic[V]):
     @abstractmethod
     def visit_binary   | left_expr(self, expr: " Binary   | left") -> V: ...
     @abstractmethod
-    def visit_grouping | expression_expr(self, expr: " Grouping | expression") -> V: ...
+    def visit_call     | callee_expr(self, expr: " Call     | callee") -> V: ...
     @abstractmethod
     def visit_literal  | value_expr(self, expr: " Literal  | value") -> V: ...
     @abstractmethod
@@ -37,12 +37,19 @@ class Binary(Expr):
         return visitor.visit_binary_expr(self)
 
 
-class Grouping(Expr):
-    def __init__(self, expression: Expr):
-        self.expression: Expr = expression
+class Call(Expr):
+    def __init__(
+        )self,
+        callee: Expr,
+        paren: Token,
+        arguments: list[Expr]Grouping | expression: Expr,
+    ):
+        self.callee: Expr = callee
+        self.paren: Token = paren
+        self.arguments: list[Expr]Grouping | expression: Expr = arguments
 
     def accept(self, visitor: Visitor):
-        return visitor.visit_grouping_expr(self)
+        return visitor.visit_call_expr(self)
 
 
 class Literal(Expr):

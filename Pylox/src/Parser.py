@@ -39,28 +39,36 @@ class Parser:
         return self._expressionStatement()
 
     def _forStatement(self):
+        # Consumes Left Parentheses
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
 
+        # Checks what the starting state is for the loop
         initializer:Stmt
+        # This means no starting state
         if (self._match([TokenType.SEMICOLON])):
             initializer = None
+        # This means you've either declared a new varible or is using a prevoius one
         elif (self._match([TokenType.VAR])):
             initializer = self._varDeclaration()
         else:
             initializer = self._expressionStatement()
 
+        # This will set what is the exiting condition for the loop
         condition:Expr = None
         if (not self._check(TokenType.SEMICOLON)):
             condition = self.expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
 
+        # What will happen at the end of each loop
         increment: Expr = None
         if (not self._check(TokenType.RIGHT_PAREN)):
             increment = self.expression()
         self._consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
 
+        # The main code in the loop
         body:Stmt = self._statement()
 
+        
         if (increment != None):
             body = Stmt.Block(
                 [body,
