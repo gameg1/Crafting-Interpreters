@@ -1,15 +1,27 @@
 import Expr
 import Stmt
-from Environment import Environment
-from error_handler import ErrorHandler, RuntimeErr
+import time
 from TokenType import TokenType
+from loxCallable import loxCallable
+from error_handler import ErrorHandler, RuntimeErr
 from Token import Token
+from Environment import Environment
+
+
+class Clock(loxCallable):
+    def arity(self) -> int:
+        return 0
+    def call(self, interpreter:"Interpreter", args:list):
+        return time.time()
+    def __str__(self) -> str:
+        return "<native clock function>"
 
 class Interpreter(Expr.Visitor, Stmt.Visitor):
+    global_env:Environment = Environment()
 
     def __init__(self):
         super().__init__()
-        self.environment:Environment = Environment()
+        self.environment:Environment = self.global_env
 
     def visit_literal_expr(self, expr: Expr.Literal) -> object:
         return expr.value
@@ -144,7 +156,24 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
                 return left == right
             
         return None
-    
+
+    def visit_callee_expr(self, expr:Expr.Call):
+        callee:object = self._evaluate(expr.callee)
+
+        arguments:list[object] = []
+        for argument in expr.arguments:
+            arguments.append(self._evaluate(argument))
+
+
+        if (not (isinstance(callee,loxCallable))):
+            raise RuntimeErr(expr.paren, "Can only call functions and classes.")
+        func:loxCallable = callee
+
+        if len(arguments) != len(func.arity()):
+            raise RuntimeErr(expr.paren, f"Expected {func.arity()} arguments but got {len(arguments)}.")
+
+        return func.call(self, arguments)
+
     def _isTruthy(self, Object:object) -> bool:
         return Object is not None and Object is not False
             

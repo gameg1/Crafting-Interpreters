@@ -213,6 +213,7 @@ class Parser:
         arguments:list[Expr.Expr] = []
         if ( not self._check(TokenType.RIGHT_PAREN)):
             while (self._match([TokenType.COMMA])):
+                # maximum argument counts
                 if len(arguments) >= 255:
                     self.error(self.peek(), "Can't have more than 255 arguments.")
                 arguments.append(self.expression())
