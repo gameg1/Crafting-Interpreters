@@ -13,6 +13,8 @@ class Visitor(ABC, Generic[V]):
     @abstractmethod
     def visit_expression_stmt(self, stmt: "Expression") -> V: ...
     @abstractmethod
+    def visit_function_stmt(self, stmt: "Function") -> V: ...
+    @abstractmethod
     def visit_if_stmt(self, stmt: "If") -> V: ...
     @abstractmethod
     def visit_print_stmt(self, stmt: "print") -> V: ...
@@ -33,6 +35,15 @@ class Expression(Stmt):
     def accept(self, visitor: Visitor):
         return visitor.visit_expression_stmt(self)
 
+class Function(Stmt):
+    def __init__(self, name: Token, parms: list[Token], body:list[Stmt]):
+        self.name: Token = name
+        self.parms: list[Token] = parms
+        self.body:list[Stmt] = body
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_function_stmt(self)
+    
 class If(Stmt):
     def __init__(
         self, condition: Expr, thenBranch: Stmt, elseBranch: Stmt | None
