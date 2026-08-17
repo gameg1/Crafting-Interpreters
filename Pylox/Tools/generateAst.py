@@ -28,6 +28,7 @@ def main():
         "Function   | name: Token, parms: list[Token]" + " body:list[Stmt]",
         "If         | condition: Expr, thenBranch: Stmt," +"elseBranch: Stmt | None",
         "print      | expression: Expr",
+        "return     | keyword:Token, value: Expr",
         "Var        | name: Token, initializer: Expr",
         "While      | condition: Expr, body: Stmt"
     ])

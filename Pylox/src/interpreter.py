@@ -3,6 +3,7 @@ import Stmt
 import time
 from TokenType import TokenType
 from loxCallable import loxCallable
+from LoxFunction import LoxFunction
 from error_handler import ErrorHandler, RuntimeErr
 from Token import Token
 from Environment import Environment
@@ -88,6 +89,11 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
         self._evaluate(stmt.expression)
         return None
 
+    def visit_function_stmt(self, stmt: Stmt.Function) -> None:
+        function: LoxFunction = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+        return None
+
     def visit_if_stmt(self, stmt: Stmt.If) -> None:
         if (self._isTruthy(self._evaluate(stmt.condition))):
             self._execute(stmt.thenBranch)
@@ -169,7 +175,7 @@ class Interpreter(Expr.Visitor, Stmt.Visitor):
             raise RuntimeErr(expr.paren, "Can only call functions and classes.")
         func:loxCallable = callee
 
-        if len(arguments) != len(func.arity()):
+        if len(arguments) != func.arity():
             raise RuntimeErr(expr.paren, f"Expected {func.arity()} arguments but got {len(arguments)}.")
 
         return func.call(self, arguments)

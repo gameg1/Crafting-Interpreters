@@ -56,7 +56,7 @@ class Call(Expr):
         self.arguments: list[Expr] = arguments
 
     def accept(self, visitor: Visitor):
-        return visitor.visit_call_expr(self)
+        return visitor.visit_callee_expr(self)
 
 class Grouping(Expr):
     def __init__(self, expression: Expr):

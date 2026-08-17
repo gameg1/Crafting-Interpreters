@@ -11,7 +11,7 @@ class LoxFunction(loxCallable):
     def __init__(self, declaration: "Stmt.Function"):
         self.declaration:Stmt.Function = declaration
 
-    def call(self, interpreter: Interpreter, arguments:list[object]) -> object:
+    def call(self, interpreter: "Interpreter", arguments:list[object]) -> object:
         environment:Environment = Environment(interpreter.global_env)
         for i in range(len(self.declaration.parms)):
             environment.define(self.declaration.parms[i].lexeme,

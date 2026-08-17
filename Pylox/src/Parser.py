@@ -34,6 +34,7 @@ class Parser:
         if self._match([TokenType.FOR]): return self._forStatement()
         if self._match([TokenType.IF]): return self._ifStatement()
         if self._match([TokenType.PRINT]): return self._printStatement()
+        if self._match([TokenType.RETURN]): return self._returnStatement()
         if self._match([TokenType.WHILE]): return self._whileStatement()
         if self._match([TokenType.LEFT_BRACE]): return Stmt.Block(self._block())
 
@@ -87,7 +88,7 @@ class Parser:
 
         return body
 
-    def _ifStatement(self):
+    def _ifStatement(self) ->Stmt.If:
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
         condition: Expr = self.expression()
         self._consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
@@ -98,10 +99,19 @@ class Parser:
 
         return Stmt.If(condition, thenBranch, elseBranch)
 
-    def _printStatement(self) -> Stmt:
+    def _printStatement(self) -> Stmt.Print:
         value: Expr = self.expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Stmt.Print(value)
+
+    def _returnStatement(self) ->Stmt.Return:
+        keyword:Token = self.previous()
+        value: Expr = None
+        if not self._check(TokenType.SEMICOLON):
+            value = self.expression()
+
+        self._consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return Stmt.Return(keyword=keyword,value=value)
 
     def _varDeclaration(self):
         name:Token = self._consume(TokenType.IDENTIFIER, "Expect variable name.")
@@ -129,14 +139,19 @@ class Parser:
         name:Token = self._consume(TokenType.IDENTIFIER, "Expect " + kind + " name.")
         self._consume(TokenType.LEFT_PAREN, " Expect '(' after" + kind + " name.")
         papameters:list[Token] = []
+
         if (not self._check(TokenType.RIGHT_PAREN)):
+            papameters.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name."))
             while self._match([TokenType.COMMA]):
-                if (len(papameters) >= 255):
-                    self.error(self.peek(), "Can't have more than 255 parameters.")
                 papameters.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name."))
-        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after papameters.")
+
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' before " + kind + " body")
+
+        if (len(papameters) >= 255):
+            self.error(self.peek(), "Can't have more than 255 parameters.")
 
         self._consume(TokenType.LEFT_BRACE, "Expect '{' before " + kind + " body.")
+
         body:list[Stmt.Stmt] = self._block()
         return Stmt.Function(name, papameters, body)
 
@@ -228,12 +243,15 @@ class Parser:
     def _finishCall(self, callee:Expr) -> Expr:
         arguments:list[Expr.Expr] = []
         if ( not self._check(TokenType.RIGHT_PAREN)):
+            arguments.append(self.expression())
             while (self._match([TokenType.COMMA])):
-                # maximum argument counts
-                if len(arguments) >= 255:
-                    self.error(self.peek(), "Can't have more than 255 arguments.")
                 arguments.append(self.expression())
         paren: Token = self._consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+
+
+        if len(arguments) >= 255:
+            self.error(self.peek(), "Can't have more than 255 arguments.")
+
         return Expr.Call(callee=callee, paren=paren, arguments=arguments)
             
 

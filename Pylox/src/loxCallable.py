@@ -6,8 +6,9 @@ if TYPE_CHECKING:
 
 class loxCallable(ABC):
     @abstractmethod
-    def arity(self) -> int: ...
+    def arity(self) -> int:
+        ...
 
     @abstractmethod
-    def call(self, interpreter:interpreter.Interpreter, arguments:list[object]) -> object:
-        pass
+    def call(self, interpreter:"interpreter.Interpreter", arguments:list[object]) -> object:
+        ...
