@@ -1,35 +1,39 @@
 import sys
-
 from Token import Token
+
 from TokenType import TokenType
 
+class ParserError(RuntimeError):
+    pass
+
+class Return(RuntimeError):
+    def __init__(self, value: object | None):
+        self.value: object| None = value
 
 class RuntimeErr(RuntimeError):
-    def __init__(self, *args, token: Token) -> None:
+    def __init__(self, *args: object, token: Token) -> None:
         super().__init__(*args)
         self.token = token
 
 class ErrorHandler:
-    def __init__(self):
-        self.had_error = False
-        self.had_runtime_error = False
+    has_error = False
+    had_runtime_error = False
 
     @classmethod
-    def error(self, token = None, message = ""):
-        if isinstance(token, Token):
-            if token.type == TokenType.EOF:
-                self.report(token.line, "", message)
+    def error(self, where:int| Token, message:str) -> None:
+        if isinstance(where, Token):
+            if where.type == TokenType.EOF:
+                self.report(where.line, "", message)
             else:
-
-                self.report(line= token.line, where=" at '" + token.lexeme + "'", message=message)
+                self.report(where.line, f" at '{where.lexeme}'", message)
         else:
-            self.report(token, "", message)
+            self.report(where, "", message)
     @classmethod
-    def runtime_error(self, error):
-        print(f"[Line {error.token.line}] --> {error.message}")
-        self.had_error = True
+    def runtime_error(self, error: RuntimeErr):
+        print(f"[Line {error.token.line}] --> {error.args[0]}")
+        self.has_error = True
         self.had_runtime_error = True
     @classmethod
-    def report(self, line, where, message):
+    def report(self, line:int, where:str, message:str):
         print(f"Line {line} | Error {where}: {message}", file=sys.stderr)
-        self.had_error = True
+        self.has_error = True

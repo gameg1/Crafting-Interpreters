@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
+
 from Environment import Environment
+from error_handler import Return
 from loxCallable import loxCallable
 
 if TYPE_CHECKING:
@@ -12,12 +14,19 @@ class LoxFunction(loxCallable):
         self.declaration:Stmt.Function = declaration
 
     def call(self, interpreter: "Interpreter", arguments:list[object]) -> object:
-        environment:Environment = Environment(interpreter.global_env)
-        for i in range(len(self.declaration.parms)):
-            environment.define(self.declaration.parms[i].lexeme,
-                               arguments[i])
-
-        interpreter.executeBlock(self.declaration.body, environment)
+        environment:Environment = Environment(interpreter.environment)
+        # for i in range(len(self.declaration.parms)):
+        #     environment.define(self.declaration.parms[i].lexeme,
+        #                        arguments[i])
+        for param, arg in zip(self.declaration.parms, arguments):
+            environment.define(param.lexeme, arg)
+            
+        try:
+            interpreter.executeBlock(self.declaration.body, environment)
+        # Catch any return values from a return token
+        except Return as e:
+            return e.value
+        
         return None
 
     def arity(self):

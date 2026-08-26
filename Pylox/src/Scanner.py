@@ -5,15 +5,14 @@ from error_handler import ErrorHandler
 class Scanner:
 
 
-    def __init__(self, source:str, error_handler:ErrorHandler):
-        self.error_handler = error_handler
+    def __init__(self, source:str):
 
         self.source:str = source
         self.tokens: list[Token] = list()
         # The location of the pointer in the source
         self._start:int = 0
         self._current:int = 0
-        self._line:int = 0
+        self._line:int = 1
 
         # Keywords to look for in the source
         self.keywords = {
@@ -100,14 +99,14 @@ class Scanner:
         self._addToken(type)
 
     def _number(self):
-        while (self._isDigit(self._peek())): self._advance()
-
-        # Look for a fractional part.
-        if (self._peek() == '.' and self._isDigit(self._peekNext())):
-            # Comsume the "."
+        while self._peek().isdigit():
             self._advance()
 
-            while (self._isDigit(self._peek())): self._advance()
+        # Look for a fractional part.
+        if self._peek() == '.' and self._peek().isdigit():
+            # Comsume the "."
+            self._advance()
+            while self._peek().isdigit(): self._advance()
         self._addToken(TokenType.NUMBER, float(self.source[self._start: self._current]))
 
     def _string(self) -> None:
@@ -117,7 +116,7 @@ class Scanner:
             self._advance()
         
         if (self._isAtEnd()):
-            self.error_handler.error(self._line, "Unterminated string.")
+            ErrorHandler.error(self._line, "Unterminated string.")
             return
         
         self._advance()
@@ -133,7 +132,7 @@ class Scanner:
         self._current +=1
         return True
     
-    def _peek(self) ->chr:
+    def _peek(self) ->str:
         if (self._isAtEnd()): return '\0'
         return self.source[self._current]
 
@@ -146,11 +145,8 @@ class Scanner:
                (str(c) >= 'A' and str(c) <= 'Z') or \
                str(c) == '_'
     
-    def _isAlphaNumeric(self, c:chr) -> bool:
-        return str(c).isalpha() or str(c).isdigit()
-
-    def _isDigit(self, c:chr):
-        return str(c) >= '0' and str(c) <= '9'
+    def _isAlphaNumeric(self, c:str) -> bool:
+        return c.isalpha() or c.isdigit()
 
     def _isAtEnd(self):
         return self._current >= len(self.source)

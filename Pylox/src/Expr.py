@@ -11,7 +11,7 @@ class Visitor(ABC, Generic[V]):
     @abstractmethod
     def visit_binary_expr(self, expr: "Binary") -> V: ...
     @abstractmethod
-    def visit_callee_expr(self, expr: "Call") -> V: ...
+    def visit_call_expr(self, expr: "Call") -> V: ...
     @abstractmethod
     def visit_grouping_expr(self, expr: "Grouping") -> V: ...
     @abstractmethod
@@ -56,7 +56,7 @@ class Call(Expr):
         self.arguments: list[Expr] = arguments
 
     def accept(self, visitor: Visitor):
-        return visitor.visit_callee_expr(self)
+        return visitor.visit_call_expr(self)
 
 class Grouping(Expr):
     def __init__(self, expression: Expr):
