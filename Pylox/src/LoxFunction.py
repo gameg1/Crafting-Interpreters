@@ -10,11 +10,12 @@ if TYPE_CHECKING:
     import Stmt
 
 class LoxFunction(loxCallable):
-    def __init__(self, declaration: "Stmt.Function"):
+    def __init__(self, declaration: "Stmt.Function", closure:Environment):
         self.declaration:Stmt.Function = declaration
+        self.closure:Environment = closure
 
     def call(self, interpreter: "Interpreter", arguments:list[object]) -> object:
-        environment:Environment = Environment(interpreter.environment)
+        environment:Environment = Environment(self.closure)
         # for i in range(len(self.declaration.parms)):
         #     environment.define(self.declaration.parms[i].lexeme,
         #                        arguments[i])
